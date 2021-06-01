@@ -1,0 +1,263 @@
+# Produto dos coeficientes: Desfecho e mediador continuos (sem interação)
+
+eq1 = lm(bwt ~ smoke + gestation  + age + parity + height + weight, data = dados)
+
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+# Efeito indireto
+i.eff = eq2$coef[2] * eq1$coef[3]
+# Efeito direto
+d.eff = eq1$coef[2]
+# Efeito total
+tot.eff = i.eff + d.eff
+
+# Bootstrap - IC para EI
+
+boot_ci1 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci1, type = "norm", index = 1)
+
+bootIndirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation  + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+return(c*b)
+}
+
+# Bootstrap - IC para ED
+
+boot_ci2 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci2, type = "norm", index = 1)
+
+bootDirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation  + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+return(b)
+}
+
+# Bootstrap - IC para ET
+
+boot_ci3 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci3, type = "norm", index = 1)
+
+bootTotal = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation  + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+ind = c*b
+dir = b
+return(ind+dir)
+}
+
+# Desfechos potenciais: Desfecho e mediador continuos (sem interação)
+
+model_outcome = lm(bwt ~ smoke + gestation  + age + parity + height + weight, data = dados)
+model_mediator = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+med = mediate(model_mediator, model_outcome, sims = 10000, boot = T, treat = "smoke", mediator = "gestation")
+summary(med)
+
+# Produto dos coeficientes: Desfecho e mediador continuos (com interação)
+
+eq1 = lm(bwt ~ smoke + gestation  + smoke*gestation + age + parity + height + weight, data = dados)
+
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+# Efeito indireto
+i.eff = eq2$coef[2] * eq1$coef[3]
+# Efeito direto
+d.eff = eq1$coef[2]
+# Efeito total
+tot.eff = i.eff + d.eff
+
+# Bootstrap - IC para EI
+
+boot_ci1 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci1, type = "norm", index = 1)
+
+bootIndirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation   + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+return(c*b)
+}
+
+# Bootstrap - IC para ED
+
+boot_ci2 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci2, type = "norm", index = 1)
+
+bootDirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation  + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+return(b)
+}
+
+# Bootstrap - IC para ET
+
+boot_ci3 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci3, type = "norm", index = 1)
+
+bootTotal = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation  + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+ind = c*b
+dir = b
+return(ind+dir)
+}
+
+# Desfechos potenciais: Desfecho e mediador continuos (com interação)
+
+model_outcome = lm(bwt ~ smoke + gestation + smoke*gestation + age + parity + height + weight, data = dados)
+model_mediator = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+med = mediate(model_mediator, model_outcome, sims = 10000, boot = T, treat = "smoke", mediator = "gestation")
+summary(med)
+
+# Produto dos coeficientes: Desfecho binário e mediador continuo (sem interação)
+
+eq1 = glm(baixo.peso ~ smoke + gestation + age + parity + height + weight, family = binomial, data = dados)
+
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+# Efeito indireto
+i.eff = eq2$coef[2] * eq1$coef[3]
+# Efeito direto
+d.eff = eq1$coef[2]
+# Efeito total
+tot.eff = i.eff * d.eff
+
+# Bootstrap - IC para EI
+
+boot_ci1 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci1, type = "norm", index = 1)
+
+bootIndirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation   + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+return(c*b)
+}
+
+# Bootstrap - IC para ED
+
+boot_ci2 = boot(dados, bootDirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci2, type = "norm", index = 1)
+
+bootDirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+return(b)
+}
+
+# Bootstrap - IC para ET
+
+boot_ci3 = boot(dados, bootTotal, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci3, type = "norm", index = 1)
+
+bootTotal = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+ind = c*b
+dir = b
+return(ind*dir)
+}
+
+# Desfechos potenciais: Desfecho binário e mediador continuo (sem interação)
+
+model_outcome = lm(baixo.peso ~ smoke + gestation + age + parity + height + weight, family = binomial, data = dados)
+model_mediator = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+med = mediate(model_mediator, model_outcome, sims = 10000, boot = T, treat = "smoke", mediator = "gestation")
+summary(med)
+
+# Produto dos coeficientes: Desfecho binário e mediador continuo (com interação)
+
+eq1 = glm(baixo.peso ~ smoke + gestation + smoke*gestation + age + parity + height + weight, family = binomial, data = dados)
+
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+# Efeito indireto
+i.eff = eq2$coef[2] * eq1$coef[3]
+# Efeito direto
+d.eff = eq1$coef[2]
+# Efeito total
+tot.eff = i.eff * d.eff
+
+# Bootstrap - IC para EI
+
+boot_ci1 = boot(dados, bootIndirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci1, type = "norm", index = 1)
+
+bootIndirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+return(c*b)
+}
+
+# Bootstrap - IC para ED
+
+boot_ci2 = boot(dados, bootDirect, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci2, type = "norm", index = 1)
+
+bootDirect = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+return(b)
+}
+
+# Bootstrap - IC para ET
+
+boot_ci3 = boot(dados, bootTotal, 10000, parallel = "multicore", ncpus = 4)
+boot.ci(boot_ci3, type = "norm", index = 1)
+
+bootTotal = function(data, index)
+{
+bootdata = data[index,]
+eq1 = lm(bwt ~ smoke + gestation + smoke*gestation + age + parity + height + weight, data = dados)
+b = as.numeric(coef(eq1)["gestation"])
+eq2 = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+c = as.numeric(coef(eq3)["smoke"])
+ind = c*b
+dir = b
+return(ind*dir)
+}
+
+# Desfechos potenciais: Desfecho binário e mediador continuo (com interação)
+
+model_outcome = lm(baixo.peso ~ smoke + gestation + smoke*gestation + age + parity + height + weight, family = binomial, data = dados)
+model_mediator = lm(gestation ~ smoke + age + parity + height + weight, data = dados)
+
+med = mediate(model_mediator, model_outcome, sims = 10000, boot = T, treat = "smoke", mediator = "gestation")
+summary(med)
